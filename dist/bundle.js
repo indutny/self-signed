@@ -22,7 +22,8 @@ var out = {
     prime: document.getElementById('progress-prime')
   },
   key: document.getElementById('key'),
-  cert: document.getElementById('cert')
+  cert: document.getElementById('cert'),
+  node: document.getElementById('node')
 };
 
 var workers = [];
@@ -56,6 +57,11 @@ form.elem.onsubmit = function(e) {
 
     out.key.value = res.key;
     out.cert.value = res.cert;
+    out.node.value = 'var options = {\n' +
+                     '  key: ' + JSON.stringify(res.key) + ',\n' +
+                     '  cert: ' + JSON.stringify(res.cert) + '\n' +
+                     '};\n';
+
     out.progress.all.value = 100;
     out.progress.prime.value = 100;
   });

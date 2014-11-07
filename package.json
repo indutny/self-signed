@@ -1,0 +1,37 @@
+{
+  "name": "selfsigned",
+  "version": "1.0.0",
+  "description": "Generate self-signed certificates in your browser",
+  "main": "lib/kg.js",
+  "scripts": {
+    "test": "mocha --no-timeouts --reporter=spec test/**/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:indutny/selfsigned"
+  },
+  "keywords": [
+    "SSL",
+    "TLS",
+    "RSA",
+    "Self-signed"
+  ],
+  "author": "Fedor Indutny <fedor@indutny.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/indutny/selfsigned/issues"
+  },
+  "homepage": "https://github.com/indutny/selfsigned",
+  "dependencies": {
+    "asn1.js": "^0.6.1",
+    "asn1.js-rfc3280": "^0.5.1",
+    "bn.js": "^0.15.0",
+    "brorand": "^1.0.1",
+    "browserify": "^6.2.0",
+    "hash.js": "^0.3.2",
+    "miller-rabin": "^1.1.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.0.1"
+  }
+}

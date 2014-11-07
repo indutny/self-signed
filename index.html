@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Self Signed</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+      }
+
+      #content {
+        width: 640px;
+        padding: 0 32px 32px 32px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      progress {
+        width: 100%;
+      }
+
+      textarea {
+        width: 100%;
+        height: 90px;
+        font-family: monospace;
+        font-size: 12px;
+      }
+
+      form {
+        width: 100%;
+      }
+
+      form .formgroup {
+        padding: 3px 0;
+      }
+
+      form input {
+        float: right;
+        margin: 0;
+      }
+
+      .clear {
+        clear: both;
+      }
+    </style>
+  </head>
+  <body>
+    <div id=content>
+      <h1>Generate Self-Signed cert</h1>
+
+      <div class=textarea-wrap>
+        <label for=key>Private key:</label>
+        <textarea id=key readonly placeholder="Private key" wrap=off></textarea>
+      </div>
+      <div class=textarea-wrap>
+        <label for=cert>Certificate:</label>
+        <textarea id=cert readonly placeholder="Certificate" wrap=off></textarea>
+      </div>
+
+      <progress id=progress-all value=0 max=100 ></progress>
+      <progress id=progress-prime value=0 max=10 ></progress>
+
+      <form action="#">
+        <div class=formgroup>
+          <label for=size>Key size: </label>
+          <input name=size id=size value=1024 />
+          <div class=clear></div>
+        </div>
+        <div class=formgroup>
+          <label for=cn>Common Name: </label>
+          <input name=cn id=cn placeholder="Common Name" required />
+          <div class=clear></div>
+        </div>
+        <div class=formgroup>
+          <label for=wildcard>Wildcard?</label>
+          <input type=checkbox name=wildcard id=wildcard />
+          <div class=clear></div>
+        </div>
+        <input type=submit value=Generate id=submit />
+      </form>
+
+      <script src="/dist/bundle.js"></script>
+    </div>
+  </body>
+</html>

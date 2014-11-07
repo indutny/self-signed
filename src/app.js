@@ -1,5 +1,3 @@
-var bn = require('bn.js');
-var kg = require('../').create();
 var constants = require('./constants');
 
 var form = {
@@ -29,6 +27,8 @@ var out = {
 var workers = [];
 for (var i = 0; i < 4; i++)
   workers.push(new Worker('dist/worker.js'));
+
+var generator = new Worker('dist/worker.js');
 
 form.elem.onsubmit = function(e) {
   e.preventDefault();
@@ -62,32 +62,35 @@ form.elem.onsubmit = function(e) {
 };
 
 function run(input, cb) {
-  sievePrimes(input.size >> 1, function(p, q) {
-    var keyData = kg.getKeyData(p, q);
-    if (!keyData)
-      return false;
-
-    // Do not block sievePrimes
-    setTimeout(function() {
-      var certData = kg.getCertData({
+  var abort = sievePrimes(input.size >> 1, function(p, q) {
+    generator.postMessage({
+      type: 'cert',
+      input: {
         commonName: input.commonName,
         dnsName: input.wildcard ? '*.' + input.commonName : false,
-        keyData: keyData
-      });
-
-      cb({
-        key: kg.getPrivate(keyData, 'pem'),
-        cert: kg.getCert(certData, 'pem')
-      });
-    }, 0);
-
-    return true;
+        p: p,
+        q: q
+      }
+    });
   });
+
+  generator.onmessage = function(e) {
+    var data = e.data;
+
+    // Check that this is not a progress report
+    if (typeof data === 'number')
+      return;
+
+    abort();
+    cb(data);
+  };
 }
 
 function sievePrimes(size, cb) {
   var prev = null;
   var done = false;
+  var gen = { type: 'generate', size: size };
+
   workers.forEach(function(worker) {
     worker.onmessage = function onmessage(e) {
       var response = e.data;
@@ -103,22 +106,24 @@ function sievePrimes(size, cb) {
         return;
       }
 
-      var prime = new bn(response, 16);
-      if (prev !== null) {
-        done = cb(prev, prime);
-
-        if (done) {
-          workers.forEach(function(worker) {
-            worker.postMessage({ type: 'abort' });
-          });
-        }
-      }
+      var prime = response;
+      if (prev !== null)
+        cb(prev, prime);
       prev = prime;
 
       // Continue searching
-      if (!done)
-        worker.postMessage({ type: 'generate', size: size });
+      worker.postMessage(gen);
     };
-    worker.postMessage({ type: 'generate', size: size });
+    worker.postMessage(gen);
   });
+
+  return function abort() {
+    if (done)
+      return;
+    done = true;
+
+    workers.forEach(function(worker) {
+      worker.postMessage({ type: 'abort' });
+    });
+  }
 }

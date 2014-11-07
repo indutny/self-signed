@@ -7532,7 +7532,8 @@ module.exports=require(18)
 exports.worker = {
   fermat: 0,
   miller: 1,
-  prime: 2
+  prime: 2,
+  noCert: 3
 };
 
 },{}],42:[function(require,module,exports){
@@ -7542,6 +7543,7 @@ exports.getByte = function getByte() {
 
 },{}],43:[function(require,module,exports){
 var kg = require('../').create({ prng: require('./prng') });
+var bn = require('bn.js');
 var constants = require('./constants');
 
 // Poly-fill
@@ -7575,6 +7577,13 @@ onmessage = function onmessage(e) {
     }).on('try', onTry);
     generators.push(gen);
     return;
+  } else if (msg.type === 'cert') {
+    genCert(msg.input, function(res) {
+      if (res)
+        postMessage(res);
+      else
+        postMessage(constants.worker.noCert);
+    });
   } else if (msg.type === 'abort') {
     generators.forEach(function(gen) {
       gen.abort();
@@ -7582,4 +7591,24 @@ onmessage = function onmessage(e) {
   }
 };
 
-},{"../":2,"./constants":41,"./prng":42}]},{},[43]);
+function genCert(input, cb) {
+  var p = new bn(input.p, 16);
+  var q = new bn(input.q, 16);
+
+  var keyData = kg.getKeyData(p, q);
+  if (!keyData)
+    return cb(false);
+
+  var certData = kg.getCertData({
+    keyData: keyData,
+    commonName: input.commonName,
+    dnsName: input.dnsName
+  });
+
+  cb({
+    key: kg.getPrivate(keyData, 'pem'),
+    cert: kg.getCert(certData, 'pem')
+  });
+}
+
+},{"../":2,"./constants":41,"./prng":42,"bn.js":17}]},{},[43]);

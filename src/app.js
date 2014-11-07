@@ -28,7 +28,7 @@ var out = {
 
 var workers = [];
 for (var i = 0; i < 4; i++)
-  workers.push(new Worker('/dist/worker.js'));
+  workers.push(new Worker('dist/worker.js'));
 
 form.elem.onsubmit = function(e) {
   e.preventDefault();

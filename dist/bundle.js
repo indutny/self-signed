@@ -7559,7 +7559,7 @@ var out = {
 
 var workers = [];
 for (var i = 0; i < 4; i++)
-  workers.push(new Worker('/dist/worker.js'));
+  workers.push(new Worker('dist/worker.js'));
 
 form.elem.onsubmit = function(e) {
   e.preventDefault();
@@ -7571,6 +7571,8 @@ form.elem.onsubmit = function(e) {
   form.elems.forEach(function(elem) {
     elem.disabled = true;
   });
+  out.progress.all.value = 0;
+  out.progress.prime.value = 0;
 
   run({
     size: form.inputs.size.value | 0,
@@ -7584,6 +7586,8 @@ form.elem.onsubmit = function(e) {
 
     out.key.value = res.key;
     out.cert.value = res.cert;
+    out.progress.all.value = 100;
+    out.progress.prime.value = 100;
   });
 
 };
@@ -7595,8 +7599,6 @@ function run(input, cb) {
       return false;
 
     // Do not block sievePrimes
-    out.progress.all.value = 100;
-    out.progress.prime.value = 100;
     setTimeout(function() {
       var certData = kg.getCertData({
         commonName: input.commonName,

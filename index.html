@@ -16,8 +16,16 @@
         margin: 0 auto;
       }
 
-      h1 {
+      h1, h3 {
         text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 0px;
+      }
+
+      h3 {
+        margin-top: 0px;
       }
 
       progress {
@@ -44,6 +52,14 @@
         margin: 0;
       }
 
+      .important {
+        text-align: center;
+        margin-top: 32px;
+        color: red;
+        font-weight: bold;
+        font-size: 12px;
+      }
+
       .clear {
         clear: both;
       }
@@ -52,6 +68,7 @@
   <body>
     <div id=content>
       <h1>Generate Self-Signed cert</h1>
+      <h3>(in your browser)</h3>
 
       <div class=textarea-wrap>
         <label for=key>Private key:</label>
@@ -87,6 +104,10 @@
         </div>
         <input type=submit value=Generate id=submit />
       </form>
+
+      <div class=important>
+        <i>Please don't use it on production servers</id>
+      </div>
 
       <script src="dist/bundle.js"></script>
     </div>

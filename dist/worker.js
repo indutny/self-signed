@@ -37,11 +37,23 @@ var GeneralNames = asn1.define('GeneralNames', function() {
 });
 exports.GeneralNames = GeneralNames;
 
+var Signature = asn1.define('Signature', function() {
+  this.seq().obj(
+    this.key('algorithm').seq().obj(
+      this.key('algorithm').objid(),
+      this.null_()
+    ),
+    this.key('digest').octstr()
+  );
+});
+exports.Signature = Signature;
+
 var IA5Str = asn1.define('IA5Str', function() {
   this.ia5str();
 });
 exports.IA5Str = IA5Str;
 
+exports.SHA256 = [ 2, 16, 840, 1, 101, 3, 4, 2, 1 ];
 exports.SHA256RSA = [ 1, 2, 840, 113549, 1, 1, 11 ];
 exports.RSA = [ 1, 2, 840, 113549, 1, 1, 1 ];
 exports.COMMONNAME = [ 2, 5, 4, 3 ];
@@ -247,7 +259,7 @@ KeyGen.prototype.getCertTBSData = function getCertTBSData(options) {
     validity: {
       notBefore: {
         type: 'utcTime',
-        value: options.notBefore || now
+        value: options.notBefore || new Date(0)
       },
       notAfter: {
         type: 'utcTime',
@@ -303,17 +315,30 @@ KeyGen.prototype.getCert = function getCert(data, enc) {
 var hash = require('hash.js');
 var brorand = require('brorand');
 var bn = require('bn.js');
+var asn1 = require('./asn1');
 
 exports.sign = function sign(data, keyData) {
   var toSign = new hash.sha256().update(data).digest();
+
+  toSign = asn1.Signature.encode({
+    algorithm: {
+      algorithm: asn1.SHA256
+    },
+    digest: toSign
+  }, 'der');
+
   var len = keyData.modulus.byteLength();
 
   // PKCS1 padding
-  toSign.push(0, 1);
+  var pad = [ 0, 1 ];
 
-  while ((toSign.length + 1) % len !== 0)
-    toSign.push(0xff);
-  toSign.push(0x00);
+  while (toSign.length + pad.length + 1 < len)
+    pad.push(0xff);
+  pad.push(0x00);
+
+  for (var i = 0; i < toSign.length; i++)
+    pad.push(toSign[i]);
+  toSign = pad;
 
   var red = bn.mont(keyData.modulus);
   toSign = new bn(toSign).toRed(red);
@@ -323,7 +348,7 @@ exports.sign = function sign(data, keyData) {
   return toSign.fromRed().toArray();
 };
 
-},{"bn.js":17,"brorand":18,"hash.js":31}],4:[function(require,module,exports){
+},{"./asn1":1,"bn.js":17,"brorand":18,"hash.js":31}],4:[function(require,module,exports){
 try {
   var asn1 = require('asn1.js');
 } catch (e) {
@@ -1132,6 +1157,9 @@ Node.prototype._encode = function encode(data, reporter, parent) {
     result = this._encodeChoice(data, reporter);
   } else if (state.children) {
     content = state.children.map(function(child) {
+      if (child._baseState.tag === 'null_')
+        return child._encode(null, reporter, data);
+
       if (child._baseState.key === null)
         return reporter.error('Child should have a key');
       var prevKey = reporter.enterKey(child._baseState.key);
@@ -1770,7 +1798,7 @@ DERNode.prototype._encodeObjid = function encodeObjid(id, values, relative) {
     id = values[id].split(/\s+/g);
     for (var i = 0; i < id.length; i++)
       id[i] |= 0;
-  } else if (id) {
+  } else if (Array.isArray(id)) {
     id = id.slice();
   }
 

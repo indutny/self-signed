@@ -1,5 +1,5 @@
 {
-  "name": "selfsigned",
+  "name": "selfsigned.js",
   "version": "1.0.1",
   "description": "Generate self-signed certificates in your browser",
   "main": "lib/kg.js",

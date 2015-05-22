@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/indutny/selfsigned",
   "dependencies": {
-    "asn1.js": "^1.0.0",
-    "asn1.js-rfc3280": "^1.0.0",
+    "asn1.js": "^2.0.0",
+    "asn1.js-rfc3280": "^2.0.0",
     "bn.js": "^1.2.4",
     "brorand": "^1.0.1",
     "browserify": "^6.2.0",

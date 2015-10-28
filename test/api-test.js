@@ -17,10 +17,8 @@ describe('Self-Signed', function() {
     });
 
     ev.on('try', function(type) {
-      if (type === 'fermat')
+      if (type === 'miller-rabin')
         process.stdout.write('.');
-      else if (type === 'miller-rabin')
-        process.stdout.write('_');
       else if (type === 'prime')
         process.stdout.write('+');
     });

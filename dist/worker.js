@@ -55,6 +55,8 @@ exports.IA5Str = IA5Str;
 
 exports.SHA256 = [ 2, 16, 840, 1, 101, 3, 4, 2, 1 ];
 exports.SHA256RSA = [ 1, 2, 840, 113549, 1, 1, 11 ];
+exports.SHA512 = [ 2, 16, 840, 1, 101, 3, 4, 2, 3 ];
+exports.SHA512RSA = [ 1, 2, 840, 113549, 1, 1, 13 ];
 exports.RSA = [ 1, 2, 840, 113549, 1, 1, 1 ];
 exports.COMMONNAME = [ 2, 5, 4, 3 ];
 exports.ALTNAME = [ 2, 5, 29, 17 ];
@@ -208,7 +210,7 @@ KeyGen.prototype.getCertTBSData = function getCertTBSData(options) {
     version: 'v3',
     serialNumber: options.serial || 0x10001,
     signature: {
-      algorithm: asn1.SHA256RSA
+      algorithm: asn1.SHA512RSA
     },
     issuer: options.issuer ? options.issuer.tbsCertificate.subject : {
       type: 'rdn',
@@ -258,7 +260,7 @@ KeyGen.prototype.getCertData = function getCertData(options) {
   return {
     tbsCertificate: tbsData,
     signatureAlgorithm: {
-      algorithm: asn1.SHA256RSA
+      algorithm: asn1.SHA512RSA
     },
     signature: { unused: 0, data: signature }
   };
@@ -279,11 +281,11 @@ var bn = require('bn.js');
 var asn1 = require('./asn1');
 
 exports.sign = function sign(data, keyData) {
-  var toSign = new hash.sha256().update(data).digest();
+  var toSign = new hash.sha512().update(data).digest();
 
   toSign = asn1.Signature.encode({
     algorithm: {
-      algorithm: asn1.SHA256
+      algorithm: asn1.SHA512
     },
     digest: toSign
   }, 'der');

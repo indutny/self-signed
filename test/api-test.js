@@ -26,6 +26,11 @@ describe('Self-Signed', function() {
     });
   });
 
+  it('should generate prime numbers synchronously', function() {
+    var p = kg.getPrime(256);
+    assert.equal(p.bitLength(), 256);
+  });
+
   it('should generate private key and cert', function(cb) {
     function find() {
       kg.getPrime(512, function(err, p) {

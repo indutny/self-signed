@@ -274,7 +274,7 @@ KeyGen.prototype.getCert = function getCert(data, enc) {
   return this._pemWrap(res, 'CERTIFICATE');
 };
 
-},{"./asn1":1,"./rsa":3,"bn.js":22,"brorand":23,"events":28,"primal":40}],3:[function(require,module,exports){
+},{"./asn1":1,"./rsa":3,"bn.js":22,"brorand":23,"events":28,"primal":38}],3:[function(require,module,exports){
 var hash = require('hash.js');
 var brorand = require('brorand');
 var bn = require('bn.js');
@@ -4490,22 +4490,46 @@ Red.prototype.invm = function invm(a) {
 };
 
 Red.prototype.pow = function pow(a, num) {
-  var w = toBitArray(num);
-  if (w.length === 0)
+  if (num.cmpn(0) === 0)
     return new BN(1);
+  if (num.cmpn(1) === 0)
+    return a.clone();
 
-  // Skip leading zeroes
-  var res = a;
-  for (var i = 0; i < w.length; i++, res = this.sqr(res))
-    if (w[i] !== 0)
-      break;
+  var windowSize = 4;
+  var wnd = new Array(1 << windowSize);
+  wnd[0] = new BN(1).toRed(this);
+  wnd[1] = a;
+  for (var i = 2; i < wnd.length; i++)
+    wnd[i] = this.mul(wnd[i - 1], a);
 
-  if (++i < w.length) {
-    for (var q = this.sqr(res); i < w.length; i++, q = this.sqr(q)) {
-      if (w[i] === 0)
+  var res = wnd[0];
+  var current = 0;
+  var currentLen = 0;
+  var start = num.bitLength() % 26;
+  if (start === 0)
+    start = 26;
+  for (var i = num.words.length - 1; i >= 0; i--) {
+    var word = num.words[i];
+    for (var j = start - 1; j >= 0; j--) {
+      var bit = (word >> j) & 1;
+      if (res !== wnd[0])
+        res = this.sqr(res);
+      if (bit === 0 && current === 0) {
+        currentLen = 0;
         continue;
-      res = this.mul(res, q);
+      }
+
+      current <<= 1;
+      current |= bit;
+      currentLen++;
+      if (currentLen !== windowSize && (i !== 0 || j !== 0))
+        continue;
+
+      res = this.mul(res, wnd[current]);
+      currentLen = 0;
+      current = 0;
     }
+    start = 26;
   }
 
   return res;
@@ -7586,6 +7610,77 @@ exports.shr64_lo = shr64_lo;
 },{"inherits":37}],37:[function(require,module,exports){
 module.exports=require(20)
 },{"/Users/findutnyy/Code/indutny/self-signed/node_modules/asn1.js/node_modules/inherits/inherits_browser.js":20}],38:[function(require,module,exports){
+'use strict';
+
+var mr = require('miller-rabin');
+var BN = require('bn.js');
+
+function Primal(options) {
+  this.options = options || {};
+  this.mr = mr.create(this.options['miller-rabin']);
+  this.sieveLimit = this.options.sieveLimit || 0x100000;
+}
+module.exports = Primal;
+
+Primal.create = function create(options) {
+  return new Primal(options);
+};
+
+Primal.prototype.test = function test(p, confidence) {
+  if (!this.simpleSieve(p))
+    return false;
+
+  if (!this.fermatTest(p))
+    return false;
+
+  if (!this.mr.test(p, confidence))
+    return false;
+
+  return true;
+};
+
+var primes = null;
+
+Primal.prototype._getPrimes = function _getPrimes() {
+  if (primes !== null)
+    return primes;
+
+  var limit = this.sieveLimit;
+  var res = [];
+  res[0] = 2;
+  for (var i = 1, k = 3; k < limit; k += 2) {
+    var sqrt = Math.ceil(Math.sqrt(k));
+    for (var j = 0; j < i && res[j] <= sqrt; j++)
+      if (k % res[j] === 0)
+        break;
+
+    if (i !== j && res[j] <= sqrt)
+      continue;
+
+    res[i++] = k;
+  }
+  primes = res;
+  return res;
+};
+
+Primal.prototype.simpleSieve = function simpleSieve(p) {
+  var primes = this._getPrimes();
+
+  for (var i = 0; i < primes.length; i++)
+    if (p.modn(primes[i]) === 0)
+      return false;
+
+  return true;
+};
+
+Primal.prototype.fermatTest = function fermatTest(p) {
+  var red = BN.mont(p);
+  return new BN(2).toRed(red).redPow(p.subn(1)).fromRed().cmpn(1) === 0;
+};
+
+},{"bn.js":39,"miller-rabin":40}],39:[function(require,module,exports){
+module.exports=require(19)
+},{"/Users/findutnyy/Code/indutny/self-signed/node_modules/asn1.js/node_modules/bn.js/lib/bn.js":19}],40:[function(require,module,exports){
 var bn = require('bn.js');
 var brorand = require('brorand');
 
@@ -7700,78 +7795,9 @@ MillerRabin.prototype.getDivisor = function getDivisor(n, k) {
   return false;
 };
 
-},{"bn.js":39,"brorand":23}],39:[function(require,module,exports){
-module.exports=require(19)
-},{"/Users/findutnyy/Code/indutny/self-signed/node_modules/asn1.js/node_modules/bn.js/lib/bn.js":19}],40:[function(require,module,exports){
-'use strict';
-
-var mr = require('miller-rabin');
-var BN = require('bn.js');
-
-function Primal(options) {
-  this.options = options || {};
-  this.mr = mr.create(this.options['miller-rabin']);
-  this.sieveLimit = this.options.sieveLimit || 0x100000;
-}
-module.exports = Primal;
-
-Primal.create = function create(options) {
-  return new Primal(options);
-};
-
-Primal.prototype.test = function test(p, confidence) {
-  if (!this.simpleSieve(p))
-    return false;
-
-  if (!this.fermatTest(p))
-    return false;
-
-  if (!this.mr.test(p, confidence))
-    return false;
-
-  return true;
-};
-
-var primes = null;
-
-Primal.prototype._getPrimes = function _getPrimes() {
-  if (primes !== null)
-    return primes;
-
-  var limit = this.sieveLimit;
-  var res = [];
-  res[0] = 2;
-  for (var i = 1, k = 3; k < limit; k += 2) {
-    var sqrt = Math.ceil(Math.sqrt(k));
-    for (var j = 0; j < i && res[j] <= sqrt; j++)
-      if (k % res[j] === 0)
-        break;
-
-    if (i !== j && res[j] <= sqrt)
-      continue;
-
-    res[i++] = k;
-  }
-  primes = res;
-  return res;
-};
-
-Primal.prototype.simpleSieve = function simpleSieve(p) {
-  var primes = this._getPrimes();
-
-  for (var i = 0; i < primes.length; i++)
-    if (p.modn(primes[i]) === 0)
-      return false;
-
-  return true;
-};
-
-Primal.prototype.fermatTest = function fermatTest(p) {
-  var red = BN.mont(p);
-  return new BN(2).toRed(red).redPow(p.subn(1)).fromRed().cmpn(1) === 0;
-};
-
-},{"bn.js":22,"miller-rabin":38}],41:[function(require,module,exports){
+},{"bn.js":39,"brorand":41}],41:[function(require,module,exports){
+module.exports=require(23)
+},{"/Users/findutnyy/Code/indutny/self-signed/node_modules/brorand/index.js":23}],42:[function(require,module,exports){
 exports.worker = {
   fermat: 0,
   miller: 1,
@@ -7779,12 +7805,12 @@ exports.worker = {
   noCert: 3
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 exports.getByte = function getByte() {
   return (Math.random() * 256) | 0;
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var kg = require('../').create({ prng: require('./prng') });
 var bn = require('bn.js');
 var constants = require('./constants');
@@ -7854,4 +7880,4 @@ function genCert(input, cb) {
   });
 }
 
-},{"../":2,"./constants":41,"./prng":42,"bn.js":22}]},{},[43]);
+},{"../":2,"./constants":42,"./prng":43,"bn.js":22}]},{},[44]);

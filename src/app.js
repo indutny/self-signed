@@ -1,4 +1,12 @@
 var constants = require('./constants');
+var Clipboard = require('clipboard');
+
+var copy = document.querySelectorAll('.copy');
+var clipboard = new Clipboard(copy);
+
+copy.forEach(function(e) {
+  e.disabled = true;
+});
 
 var form = {
   disabled: false,
@@ -52,6 +60,9 @@ form.elem.onsubmit = function(e) {
   form.elems.forEach(function(elem) {
     elem.disabled = true;
   });
+  copy.forEach(function(e) {
+    e.disabled = true;
+  });
   out.progress.all.value = 0;
   out.progress.prime.value = 0;
 
@@ -74,6 +85,10 @@ form.elem.onsubmit = function(e) {
 
     out.progress.all.value = 100;
     out.progress.prime.value = 100;
+
+    copy.forEach(function(e) {
+      e.disabled = false;
+    });
   });
 
 };

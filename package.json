@@ -5,6 +5,7 @@
   "main": "lib/kg.js",
   "scripts": {
     "build": "webpack --progress --colors -p",
+    "watch": "webpack --progress --colors --watch",
     "test": "mocha --no-timeouts --reporter=spec test/**/*-test.js"
   },
   "repository": {
@@ -33,6 +34,7 @@
     "primal": "^1.1.0"
   },
   "devDependencies": {
+    "clipboard": "^1.6.0",
     "mocha": "^2.0.1",
     "webpack": "^2.2.1"
   }

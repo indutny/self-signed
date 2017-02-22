@@ -52,6 +52,10 @@
         margin: 0;
       }
 
+      .textarea-wrap .copy {
+        float: right;
+      }
+
       .important {
         text-align: center;
         margin-top: 32px;
@@ -72,14 +76,17 @@
 
       <div class=textarea-wrap>
         <label for=key>Private key:</label>
+        <button class=copy data-clipboard-target="#key">Copy</button>
         <textarea id=key readonly placeholder="Private key" wrap=off></textarea>
       </div>
       <div class=textarea-wrap>
         <label for=cert>Certificate:</label>
+        <button class=copy data-clipboard-target="#cert">Copy</button>
         <textarea id=cert readonly placeholder="Certificate" wrap=off></textarea>
       </div>
       <div class=textarea-wrap>
         <label for=node>Node.js options:</label>
+        <button class=copy data-clipboard-target="#node">Copy</button>
         <textarea id=node readonly placeholder="Node.js opts" wrap=off></textarea>
       </div>
 
@@ -106,7 +113,7 @@
       </form>
 
       <div class=important>
-        <i>Please don't use it on production servers</id>
+        <i>Please don't use it on production servers</i>
       </div>
 
       <script src="dist/bundle.js"></script>

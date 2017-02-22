@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:indutny/selfsigned"
+    "url": "git@github.com:indutny/self-signed"
   },
   "keywords": [
     "SSL",

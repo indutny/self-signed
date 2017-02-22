@@ -4,6 +4,7 @@
   "description": "Generate self-signed certificates in your browser",
   "main": "lib/kg.js",
   "scripts": {
+    "build": "webpack --progress --colors -p",
     "test": "mocha --no-timeouts --reporter=spec test/**/*-test.js"
   },
   "repository": {
@@ -26,12 +27,13 @@
     "asn1.js": "^4.9.1",
     "asn1.js-rfc5280": "^1.2.2",
     "bn.js": "^4.0.0",
-    "brorand": "^1.0.1",
-    "browserify": "^6.2.0",
+    "brorand": "^1.1.0",
     "hash.js": "^1.0.0",
+    "hmac-drbg": "^1.0.0",
     "primal": "^1.1.0"
   },
   "devDependencies": {
-    "mocha": "^2.0.1"
+    "mocha": "^2.0.1",
+    "webpack": "^2.2.1"
   }
 }

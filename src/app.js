@@ -25,11 +25,21 @@ var out = {
   node: document.getElementById('node')
 };
 
+function createWorker() {
+  var worker = new Worker('dist/worker.js');
+  if (window.crypto && window.crypto.getRandomValues) {
+    var entropy = new Uint8Array(24);
+    window.crypto.getRandomValues(entropy);
+    worker.postMessage({ type: 'seed', seed: entropy });
+  }
+  return worker;
+}
+
 var workers = [];
 for (var i = 0; i < 4; i++)
-  workers.push(new Worker('dist/worker.js'));
+  workers.push(createWorker());
 
-var generator = new Worker('dist/worker.js');
+var generator = createWorker();
 
 form.elem.onsubmit = function(e) {
   e.preventDefault();

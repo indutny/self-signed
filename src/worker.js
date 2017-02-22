@@ -1,4 +1,5 @@
-var kg = require('../').create({ prng: require('./prng') });
+var prng = require('./prng');
+var kg = require('../').create({ prng: prng });
 var bn = require('bn.js');
 var constants = require('./constants');
 
@@ -21,7 +22,9 @@ var generators = [];
 onmessage = function onmessage(e) {
   var msg = e.data;
 
-  if (msg.type === 'generate') {
+  if (msg.type === 'seed') {
+    prng.seed(msg.seed);
+  } else if (msg.type === 'generate') {
     var gen = kg.getPrime(msg.size, function(err, prime) {
       generators.splice(generators.indexOf(gen), 1);
 

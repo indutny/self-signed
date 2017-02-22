@@ -56,7 +56,7 @@ form.elem.onsubmit = function(e) {
 
     out.key.value = res.key;
     out.cert.value = res.cert;
-    out.node.value = 'var options = {\n' +
+    out.node.value = 'const options = {\n' +
                      '  key: ' + JSON.stringify(res.key) + ',\n' +
                      '  cert: ' + JSON.stringify(res.cert) + '\n' +
                      '};\n';

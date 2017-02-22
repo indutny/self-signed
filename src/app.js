@@ -36,7 +36,8 @@ function createWorker() {
 }
 
 var workers = [];
-for (var i = 0; i < 4; i++)
+var cores = window.navigator && window.navigator.hardwareConcurrency || 4;
+for (var i = 0; i < cores; i++)
   workers.push(createWorker());
 
 var generator = createWorker();

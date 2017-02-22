@@ -1,6 +1,6 @@
 # Self Signed
 [![Build Status](https://secure.travis-ci.org/indutny/self-signed.svg)](http://travis-ci.org/indutny/self-signed)
-[![NPM version](https://badge.fury.io/js/self-signed.svg)](http://badge.fury.io/js/self-signed)
+[![NPM version](https://badge.fury.io/js/selfsigned.js.svg)](http://badge.fury.io/js/selfsigned.js)
 
 Very minimal utils that are required in order to write reasonable JS-only
 crypto module.

@@ -36,7 +36,8 @@ var out = {
 function createWorker() {
   var worker = new Worker('dist/worker.js');
   if (window.crypto && window.crypto.getRandomValues) {
-    var entropy = new Uint8Array(24);
+    // 24 is bare minimum, pass 512 bits just in case
+    var entropy = new Uint8Array(64);
     window.crypto.getRandomValues(entropy);
     worker.postMessage({ type: 'seed', seed: entropy });
   }

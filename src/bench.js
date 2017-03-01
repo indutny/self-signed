@@ -12,6 +12,7 @@ var tick = [];
 setImmediate = function(cb) {
   tick.push(cb);
 };
+setTimeout = setImmediate;
 
 var primes = 8;
 function run() {

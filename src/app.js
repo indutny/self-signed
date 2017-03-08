@@ -70,7 +70,7 @@ form.elem.onsubmit = function(e) {
   run({
     size: form.inputs.size.value | 0,
     commonName: form.inputs.commonName.value,
-    wildcard: form.inputs.wildcard.value
+    wildcard: form.inputs.wildcard.checked
   }, function(res) {
     form.disabled = false;
     form.elems.forEach(function(elem) {

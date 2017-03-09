@@ -61,7 +61,7 @@ function genCert(input, cb) {
   var certData = kg.getCertData({
     keyData: keyData,
     commonName: input.commonName,
-    dnsName: input.dnsName
+    dnsNames: input.dnsNames
   });
 
   cb({

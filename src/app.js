@@ -95,12 +95,15 @@ form.elem.onsubmit = function(e) {
 };
 
 function run(input, cb) {
+  var dnsNames = [ input.commonName ];
+  if (input.wildcard)
+    dnsNames.push('*.' + input.commonName);
   var abort = sievePrimes(input.size >> 1, function(p, q) {
     generator.postMessage({
       type: 'cert',
       input: {
         commonName: input.commonName,
-        dnsName: input.wildcard ? '*.' + input.commonName : false,
+        dnsNames: dnsNames,
         p: p,
         q: q
       }

@@ -1,8 +1,9 @@
 var constants = require('./constants');
 var Clipboard = require('clipboard');
 
-var copy = document.querySelectorAll('.copy');
-var clipboard = new Clipboard(copy);
+var copyNodes = document.querySelectorAll('.copy');
+var copy = [].slice.call(copyNodes);
+var clipboard = new Clipboard(copyNodes);
 
 copy.forEach(function(e) {
   e.disabled = true;
